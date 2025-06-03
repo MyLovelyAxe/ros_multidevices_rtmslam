@@ -60,7 +60,7 @@ This project is tested on the following hardware & software configuration:
 
 ## Setup
 
-#### 1) Prepare IP address
+#### Step 1: Prepare IP address
 
 Since ROS humble replies on **IP address** to make sure Raspberry Pi and PC can find each other under the same WIFI environment, firstly find the IP addresses for both. Run this command on each of device separately, take the returned IP addresses:
 
@@ -70,7 +70,7 @@ hostname -I
 
 E.g. the return is: `192.168.178.41 2003:de:4f13:200:e402:17a2:4b02:1f6f 2003:de:4f13:200:91f7:32d8:15da:1541`, the **`192.168.178.41`** is the IP address of current device.
 
-#### 2) Raspberry Pi
+#### Step 2: Raspberry Pi
 
 1. Raspberry Pi OS
 
@@ -80,15 +80,15 @@ Ensure Rasbian OS 64Bit (Bookworm) is installed on Raspberry Pi 5.
 
 Refer to the instruction in repository [rpi5_ros_docker_collection](https://github.com/MyLovelyAxe/rpi5_ros_docker_collection/tree/ros_rpios_humble_camera#ros-humble-in-docker-on-raspberry-pi-5-with-rasbian-bookworm-64bit-with-camera_ros) to setup both ROS humble and camera in docker container (which is Tier1 support according to [ROS2 documentation](https://docs.ros.org/en/foxy/How-To-Guides/Installing-on-Raspberry-Pi.html)).
 
-#### 3) GPU-equipped PC
+#### Step 3: GPU-equipped PC
 
 1. Setup ROS humble
 
-Firstly, install ROS humble following [ROS2 documentation instruction - installation](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html).
+Install ROS humble following [ROS2 documentation instruction - installation](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html).
 
 2. Install `slam_center`
 
-Setup ROS package [slam_center](https://github.com/MyLovelyAxe/slam_center/tree/main) which exchange messages between Raspberry Pi and NN process, including:
+Setup ROS package [slam_center](https://github.com/MyLovelyAxe/slam_center/tree/main) which exchanges messages between Raspberry Pi and NN model, including:
 
 - Input: compressed images
 - Output: 3D point cloud, camera poses
@@ -99,13 +99,13 @@ In order to integrate into ROS, this project uses a forked and refactored MASt3R
 
 [TODO: add installation of pyzmq into repo MASt3R-SLAM-ROS]
 
-#### 4) Connect devices with ROS humble
+#### Step 4: Connect devices with ROS humble
 
 Setup communication between Raspberry Pi 5 and PC with ROS humble under the **same WIFI environment**, in order to transfer images from camera module v3 to PC in live-stream.
 
 1. Raspberry Pi 5
 
-On Raspberry Pi 5, refer to repository [rpi5_ros_docker_collection](https://github.com/MyLovelyAxe/rpi5_ros_docker_collection/tree/ros_rpios_humble_camera#ros-humble-in-docker-on-raspberry-pi-5-with-rasbian-bookworm-64bit-with-camera_ros), inside a container, make sure the following commands in `docker_entrypoint.sh`:
+On Raspberry Pi 5, refer to repository [rpi5_ros_docker_collection](https://github.com/MyLovelyAxe/rpi5_ros_docker_collection/tree/ros_rpios_humble_camera#ros-humble-in-docker-on-raspberry-pi-5-with-rasbian-bookworm-64bit-with-camera_ros), enter a container, make sure the following commands in `docker_entrypoint.sh`:
 
 ```bash
 source /opt/ros/${ROS_DISTRO}/setup.bash # source underlay
@@ -115,7 +115,7 @@ export ROS_LOCALHOST_ONLY=0 # make sure ROS not only connect its local host netw
 export ROS_IP=<IP.address.of.pc>
 ```
 
-Then source `docker_entrypoint.sh` to make sure Raspberry Pi 5 is able to find PC by ROS humble:
+Then source `docker_entrypoint.sh` which makes sure Raspberry Pi 5 is able to find PC by ROS humble:
 
 ```bash
 source docker_entrypoint.sh
@@ -132,7 +132,7 @@ export ROS_LOCALHOST_ONLY=0 # make sure ROS not only connect its local host netw
 export ROS_IP=<IP.address.of.raspberry_pi>
 ```
 
-Then source `.bashrc` to make sure Raspberry Pi 5 is able to find PC by ROS humble:
+Then source `.bashrc` which makes sure PC is able to find Raspberry Pi 5 by ROS humble:
 
 ```bash
 source .bashrc
@@ -152,7 +152,7 @@ ros2 run camera_ros camera_node
 
 #### 2) PC: transfer images
 
-On PC, open a new terminal, ensure not to enter any virtual env, in order to use system python for ROS humble. Start slam_center node to transfer images, i.e. subscribe to `/camera/image_raw/compressed` to get compressed images and publish to a ZMQ socket for NN model:
+On PC, open a terminal, ensure not to enter any virtual env, in order to use system python for ROS humble. Start slam_center node to transfer images, i.e. subscribe to `/camera/image_raw/compressed` to get compressed images and publish to a ZMQ socket for NN model:
 
 ```bash
 cd path/to/ros_workspace/
@@ -162,13 +162,13 @@ ros2 run slam_center send_comp_img
 
 #### 3) PC: real-time SLAM
 
-On PC, enter the conda env for [MASt3R-SLAM-ROS](https://github.com/MyLovelyAxe/MASt3R-SLAM-ROS):
+On PC, open a new terminal, enter the conda env for [MASt3R-SLAM-ROS](https://github.com/MyLovelyAxe/MASt3R-SLAM-ROS):
 
 ```bash
 conda activate mast3r
 ```
 
-Start process of MASt3R-SLAM which subscribes live-stream compressed images from ZMQ socket and reconstruct 3D scene in real-time:
+Start process of MASt3R-SLAM which subscribes live-stream compressed images from ZMQ socket and reconstructs 3D scene in real-time:
 
 ```bash
 python main.py
