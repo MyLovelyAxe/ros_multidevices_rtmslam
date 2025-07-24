@@ -2,6 +2,8 @@
 
 This project implements real-time SLAM pipeline cooperated with multiple devices (i.e. Raspberry Pi and GPU-equipped PC) which are connected with ROS humble.
 
+![Description](mast3r_slam_in_ros_demo.gif)
+
 ## Table of Contents
 
 - [Introduction](#introduction)
