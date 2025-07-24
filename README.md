@@ -95,7 +95,7 @@ Setup ROS package [slam_center](https://github.com/MyLovelyAxe/slam_center/tree/
 
 3. Install NN model for 3D scene reconstruction
 
-In order to integrate into ROS, this project uses a forked and refactored MASt3R-SLAM, refer to `README.md` of repo [MASt3R-SLAM](https://github.com/MyLovelyAxe/MASt3R-SLAM/tree/ros) to setup.
+In order to integrate into ROS, this project uses a forked and refactored MASt3R-SLAM, refer to `README.md` of repo [MASt3R-SLAM](https://github.com/MyLovelyAxe/MASt3R-SLAM/tree/ros) to setup the branch `ros`.
 
 #### 4) Connect devices with ROS humble
 
@@ -148,14 +148,14 @@ source docker_entrypoint.sh
 ros2 run camera_ros camera_node
 ```
 
-#### 2) PC: transfer images
+#### 2) PC: exchange input and output
 
-On PC, open a new terminal, ensure not to enter any virtual env, in order to use system python for ROS humble. Start slam_center node to transfer images, i.e. subscribe to `/camera/image_raw/compressed` to get compressed images and publish to a ZMQ socket for NN model:
+On PC, open a new terminal, ensure not to enter any virtual env, in order to use system python for ROS humble. Launch nodes `send_comp_img` (i.e. transfer compressed images from ros2 topic to ZMQ socket) and `visualize_pcd_cam` (i.e. receive result point cloud and camera poses from another ZMQ socket to visualize in Rviz) with:
 
 ```bash
 cd path/to/ros_workspace/
 source install/setup.bash # source underlay and overlay
-ros2 run slam_center send_comp_img
+ros2 launch slam_center demo.launch.py
 ```
 
 #### 3) PC: real-time SLAM
@@ -163,11 +163,11 @@ ros2 run slam_center send_comp_img
 On PC, enter the conda env for [MASt3R-SLAM](https://github.com/MyLovelyAxe/MASt3R-SLAM/tree/ros):
 
 ```bash
-conda activate mast3r
+conda activate mast3r-slam
 ```
 
-Start process of MASt3R-SLAM which subscribes live-stream compressed images from ZMQ socket and reconstruct 3D scene in real-time:
+Start process of MASt3R-SLAM on branch `ros` which subscribes live-stream compressed images from ZMQ socket and reconstruct 3D scene in real-time, then output point cloud and camera poses for visualization:
 
 ```bash
-python main.py
+python main_zmq.py
 ```
