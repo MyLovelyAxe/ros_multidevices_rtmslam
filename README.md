@@ -32,15 +32,15 @@ The following diagram illustrates how different components exchange message and 
 > **Attention:**  
 > On the PC end, since ROS humble runs under system Python 3.10, while most state-of-the-art NN-based models rely on Python 3.11 and PyTorch, this project uses ZMQ sockets to exchange messages between ROS and NN models. This approach avoids forcing ROS and NN models to run under the same Python environment.
 
-<img src="slam_center_diagram.svg" width="800"/>
+<img src="RPI_ROS_rtp_diagram.drawio.svg" width="800"/>
 
-1. Raspberry Pi and PC connects with ROS humble with the same ROS domain;
+1. Raspberry Pi and PC are connected with ROS humble under the same ROS domain and WIFI;
 
-2. Raspberry Pi captures images with camera module v3 and transfers them to `ROS image topic`;
+2. Raspberry Pi offers live-stream compressed images with camera module v3 and transfers them to **ROS image topic**;
 
-3. PC receives images from `ROS image topic` and sends them to ZMQ sockets;
+3. Inside the PC, the [slam_center](https://github.com/MyLovelyAxe/slam_center/tree/main) receives images from **ROS image topic** and sends them to **image ZMQ socket**. Meanwhile, the **slam_center** receives result from **result ZMQ socket** for camera poses and point cloud, and visualize with Rviz;
 
-4. NN model receives images from ZMQ sockets and reconstruct for 3D scene;
+4. NN model receives images from **image ZMQ socket**, process, then sends out camera poses and point cloud to the **result ZMQ socket**;
 
 
 ---
@@ -64,7 +64,7 @@ This project is tested on the following hardware & software configuration:
 
 #### 1) Prepare IP address
 
-Since ROS humble replies on **IP address** to make sure Raspberry Pi and PC can find each other under the same WIFI environment, firstly find the IP addresses for both. Run this command on each of device separately, take the returned IP addresses:
+Since ROS humble replies on **IP address** to make sure Raspberry Pi and PC can find each other under the **same WIFI** environment, firstly find the IP addresses for both. Run this command on each of device separately, take the returned IP addresses:
 
 ```bash
 hostname -I
@@ -90,10 +90,7 @@ Firstly, install ROS humble following [ROS2 documentation instruction - installa
 
 2. Install `slam_center`
 
-Setup ROS package [slam_center](https://github.com/MyLovelyAxe/slam_center/tree/main) which exchange messages between Raspberry Pi and NN process, including:
-
-- Input: compressed images
-- Output: 3D point cloud, camera poses
+Setup ROS package [slam_center](https://github.com/MyLovelyAxe/slam_center/tree/main) which exchanges messages (i.e. images, point clouds, camera poses) between Raspberry Pi and NN process with ROS topics and ZMQ sockets.
 
 3. Install NN model for 3D scene reconstruction
 
@@ -132,7 +129,7 @@ export ROS_LOCALHOST_ONLY=0 # make sure ROS not only connect its local host netw
 export ROS_IP=<IP.address.of.raspberry_pi>
 ```
 
-Then source `.bashrc` to make sure Raspberry Pi 5 is able to find PC by ROS humble:
+Then source `.bashrc` to make sure the PC is able to find Raspberry Pi 5 by ROS humble:
 
 ```bash
 source .bashrc
@@ -168,8 +165,12 @@ On PC, enter the conda env for [MASt3R-SLAM](https://github.com/MyLovelyAxe/MASt
 conda activate mast3r-slam
 ```
 
-Start process of MASt3R-SLAM on branch `ros` which subscribes live-stream compressed images from ZMQ socket and reconstruct 3D scene in real-time, then output point cloud and camera poses for visualization:
+Start process of MASt3R-SLAM which receives live-stream compressed images from ZMQ socket and reconstructs 3D scene in real-time, then outputs point cloud and camera poses for visualization:
 
 ```bash
 python main_zmq.py
 ```
+
+#### 4) Move camera
+
+Then hold your camera and move around the object or scene to offer live-stream images.
