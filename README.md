@@ -2,7 +2,7 @@
 
 This project implements real-time SLAM pipeline cooperated with multiple devices (i.e. Raspberry Pi and GPU-equipped PC) which are connected with ROS humble.
 
-![Description](mast3r_slam_in_ros_demo.gif)
+![Description](resources/mast3r_slam_in_ros_demo.gif)
 
 ## Table of Contents
 
@@ -32,7 +32,7 @@ The following diagram illustrates how different components exchange message and 
 > **Attention:**  
 > On the PC end, since ROS humble runs under system Python 3.10, while most state-of-the-art NN-based models rely on Python 3.11 and PyTorch, this project uses ZMQ sockets to exchange messages between ROS and NN models. This approach avoids forcing ROS and NN models to run under the same Python environment.
 
-<img src="RPI_ROS_rtp_diagram.drawio.svg" width="800"/>
+<img src="resources/RPI_ROS_rtp_diagram.drawio.svg" width="800"/>
 
 1. Raspberry Pi and PC are connected with ROS humble under the same ROS domain and WIFI;
 
